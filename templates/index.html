@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Dự đoán bệnh</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🩺 Dự đoán bệnh</h1>
+        <form id="predictForm">
+            {% for label in labels %}
+            <div class="input-group">
+                <label>{{ label }}</label>
+                <input type="number" step="any" name="{{ label }}" required min="1">
+            </div>
+            {% endfor %}
+            <div class="center">
+                <button type="submit">Dự đoán</button>
+            </div>            
+        </form>
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('predictForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+    
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "⏳ Đang xử lý...";
+    
+            const formData = new FormData(this);
+    
+            try {
+                const res = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                resultDiv.innerHTML = data.result 
+                    ? `👉 Kết quả: <b>${data.result}</b>` 
+                    : `<span style="color:red;">Lỗi: ${data.error}</span>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span style="color:red;">Lỗi kết nối máy chủ</span>`;
+            }
+        });
+    </script>
+    
+</body>
+</html>
